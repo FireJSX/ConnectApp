@@ -42,9 +42,16 @@ public class NfcActivity extends AppCompatActivity {
             return;
         }
 
-        // Direkt eine NDEF-Nachricht setzen
+        // NDEF-Nachricht vorbereiten
         NdefMessage ndefMessage = generateNdefMessage();
-        nfcAdapter.setNdefPushMessage(ndefMessage, this);
+
+        // Setze den NfcPushMessageCallback zum Senden der Nachricht
+        nfcAdapter.setNfcPushMessageCallback(new NfcAdapter.NfcPushMessageCallback() {
+            @Override
+            public NdefMessage getNdefPushMessage(NfcEvent event) {
+                return ndefMessage; // Die Nachricht, die gesendet werden soll
+            }
+        }, this);
 
         Toast.makeText(this, "Bereit für NFC-Datenübertragung", Toast.LENGTH_SHORT).show();
 
@@ -56,7 +63,7 @@ public class NfcActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        // Foreground Dispatch deaktivieren
+        // Deaktiviert die NFC-Empfangs-Option
         if (nfcAdapter != null) {
             nfcAdapter.disableForegroundDispatch(this);
         }
@@ -87,6 +94,7 @@ public class NfcActivity extends AppCompatActivity {
     }
 
     private void enableForegroundDispatch() {
+        // Bereitet die NDEF-Nachricht und die Tags für das NFC-Übertragen vor
         Intent intent = new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this, 0, intent, PendingIntent.FLAG_MUTABLE);
@@ -98,7 +106,7 @@ public class NfcActivity extends AppCompatActivity {
     }
 
     private NdefMessage generateNdefMessage() {
-        // Beispieltext (du kannst den Text durch deine dynamischen Daten ersetzen)
+        // Beispieltext (dieser Text kann später durch dynamische Daten ersetzt werden)
         String message = "Dies ist die Nachricht, die geteilt wird.";
 
         // NDEF-Record erstellen
@@ -108,7 +116,6 @@ public class NfcActivity extends AppCompatActivity {
         return new NdefMessage(new NdefRecord[]{ndefRecord});
     }
 }
-
 
 
 /*
