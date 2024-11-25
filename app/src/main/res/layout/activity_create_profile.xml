@@ -1,0 +1,59 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Eingabefeld für den Namen -->
+        <EditText
+            android:id="@+id/input_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name"
+            android:inputType="textPersonName" />
+
+        <!-- Eingabefeld für die Telefonnummer -->
+        <EditText
+            android:id="@+id/input_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Telefonnummer"
+            android:inputType="phone" />
+
+        <!-- Eingabefeld für die E-Mail-Adresse -->
+        <EditText
+            android:id="@+id/input_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="E-Mail"
+            android:inputType="textEmailAddress" />
+
+        <!-- Eingabefeld für die Adresse -->
+        <EditText
+            android:id="@+id/input_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Adresse"
+            android:inputType="textPostalAddress" />
+
+        <!-- Checkbox für Standard-Profil -->
+        <CheckBox
+            android:id="@+id/check_default_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Als Standard-Profil festlegen" />
+
+        <!-- Speichern-Button -->
+        <Button
+            android:id="@+id/save_profile_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Speichern"
+            android:layout_marginTop="16dp" />
+    </LinearLayout>
+</ScrollView>
