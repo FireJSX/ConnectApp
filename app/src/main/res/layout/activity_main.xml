@@ -1,60 +1,49 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <LinearLayout
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/input_name"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="wrap_content"
+        android:hint="Name" />
 
-        <EditText
-            android:id="@+id/input_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Name" />
+    <EditText
+        android:id="@+id/input_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Telefonnummer" />
 
-        <EditText
-            android:id="@+id/input_phone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Telefonnummer" />
+    <EditText
+        android:id="@+id/input_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="E-Mail" />
 
-        <CheckBox
-            android:id="@+id/check_share_phone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Telefonnummer teilen" />
+    <EditText
+        android:id="@+id/input_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Adresse" />
 
-        <Button
-            android:id="@+id/btn_enable_nfc"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="NFC aktivieren" />
-        <EditText
-            android:id="@+id/input_email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="E-Mail" />
+    <CheckBox
+        android:id="@+id/check_share_phone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Telefonnummer teilen" />
 
-        <EditText
-            android:id="@+id/input_address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Adresse" />
+    <CheckBox
+        android:id="@+id/check_share_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="E-Mail teilen" />
 
-        <EditText
-            android:id="@+id/input_instagram"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Instagram-Handle" />
-
-        <Button
-            android:id="@+id/btn_add_info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Zusätzliche Information hinzufügen" />
-
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <CheckBox
+        android:id="@+id/check_share_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Adresse teilen" />
+</LinearLayout>

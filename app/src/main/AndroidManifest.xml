@@ -5,8 +5,12 @@
     <!-- Berechtigungen -->
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-feature android:name="android.hardware.nfc" android:required="true" />
+    <uses-sdk
+        android:minSdkVersion="19"
+        tools:overrideLibrary="androidx.appcompat.resources" />
 
     <application
         android:allowBackup="true"
