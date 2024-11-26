@@ -6,7 +6,8 @@ import android.content.IntentFilter;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.nfc.NfcEvent;
+import android.nfc.Tag;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -31,29 +32,15 @@ public class NfcActivity extends AppCompatActivity {
             finish();
             return;
         }
+
+        if (!nfcAdapter.isEnabled()) {
+            Toast.makeText(this, "Bitte NFC in den Geräteeinstellungen aktivieren.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        if (nfcAdapter == null) {
-            Toast.makeText(this, "NFC ist nicht verfügbar", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // NDEF-Nachricht vorbereiten
-        NdefMessage ndefMessage = generateNdefMessage();
-
-        // Setze den NfcPushMessageCallback zum Senden der Nachricht
-        nfcAdapter.setNfcPushMessageCallback(new NfcAdapter.NfcPushMessageCallback() {
-            @Override
-            public NdefMessage getNdefPushMessage(NfcEvent event) {
-                return ndefMessage; // Die Nachricht, die gesendet werden soll
-            }
-        }, this);
-
-        Toast.makeText(this, "Bereit für NFC-Datenübertragung", Toast.LENGTH_SHORT).show();
 
         // Foreground Dispatch aktivieren
         enableForegroundDispatch();
@@ -63,10 +50,8 @@ public class NfcActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        // Deaktiviert die NFC-Empfangs-Option
-        if (nfcAdapter != null) {
-            nfcAdapter.disableForegroundDispatch(this);
-        }
+        // Foreground Dispatch deaktivieren
+        disableForegroundDispatch();
     }
 
     @Override
@@ -74,48 +59,77 @@ public class NfcActivity extends AppCompatActivity {
         super.onNewIntent(intent);
 
         Log.d(TAG, "onNewIntent aufgerufen");
+        String action = intent.getAction();
 
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction()) ||
-                NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())) {
-            Toast.makeText(this, "NDEF Nachricht empfangen!", Toast.LENGTH_SHORT).show();
+        // Überprüfen, ob ein NFC-Tag erkannt wurde
+        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action) ||
+                NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
 
-            // Nachricht auslesen
+            Toast.makeText(this, "NFC-Tag erkannt!", Toast.LENGTH_SHORT).show();
+
+            // Tag auslesen (wenn vorhanden)
+            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            if (tag != null) {
+                Log.d(TAG, "NFC-Tag ID: " + bytesToHex(tag.getId()));
+            }
+
+            // Überprüfen, ob eine NDEF-Nachricht enthalten ist
             if (intent.hasExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)) {
                 NdefMessage[] messages = (NdefMessage[]) intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+
                 if (messages != null && messages.length > 0) {
-                    NdefMessage message = messages[0];
-                    String receivedMessage = new String(message.getRecords()[0].getPayload());
-                    Toast.makeText(this, "Empfangene Nachricht: " + receivedMessage, Toast.LENGTH_SHORT).show();
+                    String receivedMessage = new String(messages[0].getRecords()[0].getPayload());
+                    Toast.makeText(this, "Empfangene Nachricht: " + receivedMessage, Toast.LENGTH_LONG).show();
                 }
             }
-        } else {
-            Toast.makeText(this, "Kein gültiger NFC-Tag erkannt", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void enableForegroundDispatch() {
-        // Bereitet die NDEF-Nachricht und die Tags für das NFC-Übertragen vor
+        // Intent für das Erkennen von NFC-Tags
         Intent intent = new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                this, 0, intent, PendingIntent.FLAG_MUTABLE);
 
-        IntentFilter[] filters = new IntentFilter[]{};
+        // PendingIntent, das ausgelöst wird, wenn ein NFC-Tag erkannt wird
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+
+        // IntentFilter für unterstützte Aktionen
+        IntentFilter[] filters = new IntentFilter[]{
+                new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED),
+                new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
+        };
+
+        // Technologielisten für die unterstützten Tag-Typen (optional, hier leer)
         String[][] techLists = new String[][]{};
 
+        // Foreground Dispatch aktivieren
         nfcAdapter.enableForegroundDispatch(this, pendingIntent, filters, techLists);
     }
 
-    private NdefMessage generateNdefMessage() {
-        // Beispieltext (dieser Text kann später durch dynamische Daten ersetzt werden)
-        String message = "Dies ist die Nachricht, die geteilt wird.";
+    private void disableForegroundDispatch() {
+        if (nfcAdapter != null) {
+            nfcAdapter.disableForegroundDispatch(this);
+        }
+    }
 
-        // NDEF-Record erstellen
-        NdefRecord ndefRecord = NdefRecord.createTextRecord("en", message);
+    private NdefMessage createNdefMessage(String text) {
+        // Beispiel-Nachricht erstellen
+        NdefRecord record = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            record = NdefRecord.createTextRecord("en", text);
+        }
+        return new NdefMessage(new NdefRecord[]{record});
+    }
 
-        // NDEF-Nachricht erstellen
-        return new NdefMessage(new NdefRecord[]{ndefRecord});
+    private String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02X", b));
+        }
+        return sb.toString();
     }
 }
+
 
 
 /*
