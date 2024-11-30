@@ -1,5 +1,4 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -18,65 +17,14 @@
         android:id="@+id/fab_add_profile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="178dp"
+        android:layout_marginBottom="18dp"
         android:contentDescription="Profil hinzufügen"
         app:srcCompat="@android:drawable/ic_input_add" />
 
 </RelativeLayout>
-
-
-
-    <!--
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <EditText
-            android:id="@+id/input_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Name" />
-
-        <EditText
-            android:id="@+id/input_phone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Telefonnummer" />
-
-        <EditText
-            android:id="@+id/input_email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="E-Mail" />
-
-        <EditText
-            android:id="@+id/input_address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Adresse" />
-
-        <CheckBox
-            android:id="@+id/check_share_phone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Telefonnummer teilen" />
-
-        <CheckBox
-            android:id="@+id/check_share_email"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="E-Mail teilen" />
-
-        <CheckBox
-            android:id="@+id/check_share_address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Adresse teilen" />
-    </LinearLayout>
-    -->
-

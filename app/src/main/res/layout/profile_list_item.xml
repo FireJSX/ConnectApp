@@ -1,9 +1,9 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp">
 
+    <!-- Profilname -->
     <TextView
         android:id="@+id/profile_name"
         android:layout_width="wrap_content"
@@ -12,12 +12,16 @@
         android:textStyle="bold"
         android:textSize="16sp" />
 
+
+
+    <!-- Drei Punkte für das Overflow-Menü -->
     <ImageView
-        android:id="@+id/edit_profile_button"
+        android:id="@+id/profile_menu_button"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:src="@android:drawable/ic_menu_edit"
-        android:contentDescription="Bearbeiten" />
+        android:src="@android:drawable/ic_menu_more"
+        android:contentDescription="Menü" />
+
 </RelativeLayout>

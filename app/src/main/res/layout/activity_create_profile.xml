@@ -9,12 +9,28 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Eingabefeld für den Namen -->
+        <!-- Eingabefeld für Profilnamen -->
+        <EditText
+            android:id="@+id/editTextProfileName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Profilname"
+            android:inputType="textPersonName" />
+
+        <!-- Eingabefeld für den Vornamen -->
         <EditText
             android:id="@+id/input_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Name"
+            android:hint="Vorname"
+            android:inputType="textPersonName" />
+
+        <!-- Eingabefeld für den Nachnamen -->
+        <EditText
+            android:id="@+id/editTextLastName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nachname"
             android:inputType="textPersonName" />
 
         <!-- Eingabefeld für die Telefonnummer -->
@@ -25,7 +41,9 @@
             android:hint="Telefonnummer"
             android:inputType="phone" />
 
-        <!-- Eingabefeld für die E-Mail-Adresse -->
+
+
+        <!-- Eingabefeld für E-Mail-Adresse -->
         <EditText
             android:id="@+id/input_email"
             android:layout_width="match_parent"

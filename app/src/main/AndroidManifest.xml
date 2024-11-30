@@ -23,7 +23,7 @@
         android:theme="@style/Theme.ConnectApp"
         tools:targetApi="31">
 
-        <!-- Aktivität -->
+        <!-- MainActivity: Die Startaktivität -->
         <activity android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -31,6 +31,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- CreateProfileActivity -->
+        <activity android:name=".CreateProfileActivity"
+            android:exported="true" />
+
+        <!-- NfcActivity -->
+        <activity android:name=".NfcActivity"
+            android:exported="true" />
 
     </application>
 </manifest>
