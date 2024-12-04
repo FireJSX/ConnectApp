@@ -51,6 +51,10 @@ public class MainActivity extends AppCompatActivity {
         // Neues Profil hinzufügen
         fabAddProfile.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, CreateProfileActivity.class);
+
+            // Bestehende Profile als Liste übergeben
+            intent.putParcelableArrayListExtra("existingProfiles", profileList);
+
             startActivityForResult(intent, REQUEST_CODE_CREATE_PROFILE);
         });
     }

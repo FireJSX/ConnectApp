@@ -39,6 +39,8 @@ dependencies {
     implementation("androidx.core:core:1.10.1")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.appcompat:appcompat:1.3.0")
+    implementation ("com.google.zxing:core:3.5.1")
+    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation(libs.material)
     implementation(libs.core.ktx)
     testImplementation(libs.junit)

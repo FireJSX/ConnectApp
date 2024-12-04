@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+
 public class CreateProfileActivity extends AppCompatActivity {
     private EditText profileNameEditText;
     private EditText nameEditText;
@@ -75,6 +77,10 @@ public class CreateProfileActivity extends AppCompatActivity {
             Toast.makeText(this, "Bitte gib deine Telefonnummer oder E-Mail-Adresse ein!", Toast.LENGTH_SHORT).show();
             return;
         }
+        // Wenn Profilname nicht angegeben, auf Unbenannt setzen
+        if (profileName.isEmpty()){
+            profileName = generateUniqueProfileName("Unbenannt");
+        }
 
         // Neues oder bearbeitetes Profil erstellen
         Profile newProfile = new Profile(profileName, name, lastName, phone, email, address);
@@ -91,5 +97,31 @@ public class CreateProfileActivity extends AppCompatActivity {
         setResult(RESULT_OK, resultIntent);  // Ergebnis für die aufrufende Activity setzen
 
         finish();  // Beendet die Activity und kehrt zur aufrufenden zurück
+    }
+    private String generateUniqueProfileName(String baseName) {
+        Intent intent = getIntent();
+        ArrayList<Profile> existingProfiles = intent.getParcelableArrayListExtra("existingProfiles");
+        if (existingProfiles == null) {
+            return baseName; // Kein Konflikt, Basisname verwenden
+        }
+
+        String uniqueName = baseName;
+        int counter = 1;
+
+        // Überprüfe, ob der Name bereits existiert
+        while (profileExists(uniqueName, existingProfiles)) {
+            uniqueName = baseName + " (" + counter + ")";
+            counter++;
+        }
+
+        return uniqueName;
+    }
+    private boolean profileExists(String profileName, ArrayList<Profile> existingProfiles) {
+        for (Profile profile : existingProfiles) {
+            if (profile.getProfileName().equals(profileName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

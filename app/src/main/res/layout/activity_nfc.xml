@@ -1,14 +1,95 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/nfc_status_text"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="NFC ist bereit. Halten Sie Ihr Gerät in die Nähe eines Tags."
-        android:textSize="18sp"
-        android:layout_centerInParent="true" />
+        android:orientation="vertical">
 
-</RelativeLayout>
+        <!-- NFC Status -->
+        <TextView
+            android:id="@+id/nfc_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NFC is enabled!"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingBottom="16dp" />
+
+        <!-- Profile Name -->
+        <TextView
+            android:id="@+id/profile_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Profile Name: "
+            android:textSize="16sp"
+            android:paddingBottom="8dp" />
+
+        <!-- First Name -->
+        <TextView
+            android:id="@+id/first_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="First Name: "
+            android:textSize="16sp"
+            android:paddingBottom="8dp" />
+
+        <!-- Last Name -->
+        <TextView
+            android:id="@+id/last_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Last Name: "
+            android:textSize="16sp"
+            android:paddingBottom="8dp" />
+
+        <!-- Phone -->
+        <TextView
+            android:id="@+id/phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone: "
+            android:textSize="16sp"
+            android:paddingBottom="8dp" />
+
+        <!-- Email -->
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email: "
+            android:textSize="16sp"
+            android:paddingBottom="8dp" />
+
+        <!-- Address -->
+        <TextView
+            android:id="@+id/address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Address: "
+            android:textSize="16sp"
+            android:paddingBottom="16dp" />
+
+        <!-- QR Code Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="QR Code:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingBottom="8dp" />
+
+        <!-- QR Code Display -->
+        <ImageView
+            android:id="@+id/qr_code_view"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:contentDescription="QR Code"
+            android:layout_gravity="center"
+            android:padding="16dp" />
+
+    </LinearLayout>
+</ScrollView>
