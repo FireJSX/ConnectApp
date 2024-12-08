@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ public class CreateProfileActivity extends AppCompatActivity {
     private EditText phoneEditText;
     private EditText emailEditText;
     private EditText addressEditText;
+    private CheckBox defaultProfileCheckBox; // CheckBox für Standardprofil
     private Button saveProfileButton;
 
     private Profile profileToEdit; // Variable für das zu bearbeitende Profil
@@ -35,6 +37,7 @@ public class CreateProfileActivity extends AppCompatActivity {
         phoneEditText = findViewById(R.id.input_phone);
         emailEditText = findViewById(R.id.input_email);
         addressEditText = findViewById(R.id.input_address);
+        defaultProfileCheckBox = findViewById(R.id.checkbox_default_profile); // CheckBox initialisieren
         saveProfileButton = findViewById(R.id.save_profile_button);
 
         // Überprüfen, ob wir ein Profil zum Bearbeiten haben
@@ -66,6 +69,7 @@ public class CreateProfileActivity extends AppCompatActivity {
         String phone = phoneEditText.getText().toString().trim();
         String email = emailEditText.getText().toString().trim();
         String address = addressEditText.getText().toString().trim();
+        boolean isDefault = defaultProfileCheckBox.isChecked(); // Zustand der CheckBox abfragen
 
         // Validierung der Eingaben:
         // Nur Vorname und Telefonnummer sind erforderlich, alle anderen Felder sind optional
@@ -78,7 +82,7 @@ public class CreateProfileActivity extends AppCompatActivity {
             return;
         }
         // Wenn Profilname nicht angegeben, auf Unbenannt setzen
-        if (profileName.isEmpty()){
+        if (profileName.isEmpty()) {
             profileName = generateUniqueProfileName("Unbenannt");
         }
 
@@ -88,16 +92,18 @@ public class CreateProfileActivity extends AppCompatActivity {
         // Wenn wir ein Profil bearbeiten, die Position übergeben
         Intent resultIntent = new Intent();
         resultIntent.putExtra("newProfile", newProfile);
+        resultIntent.putExtra("isDefault", isDefault); // Ist es das Standardprofil?
 
         // Falls es bearbeitet wird, auch die Position weitergeben
         if (profilePosition != -1) {
             resultIntent.putExtra("profilePosition", profilePosition);
         }
 
-        setResult(RESULT_OK, resultIntent);  // Ergebnis für die aufrufende Activity setzen
+        setResult(RESULT_OK, resultIntent); // Ergebnis für die aufrufende Activity setzen
 
-        finish();  // Beendet die Activity und kehrt zur aufrufenden zurück
+        finish(); // Beendet die Activity und kehrt zur aufrufenden zurück
     }
+
     private String generateUniqueProfileName(String baseName) {
         Intent intent = getIntent();
         ArrayList<Profile> existingProfiles = intent.getParcelableArrayListExtra("existingProfiles");
@@ -116,6 +122,7 @@ public class CreateProfileActivity extends AppCompatActivity {
 
         return uniqueName;
     }
+
     private boolean profileExists(String profileName, ArrayList<Profile> existingProfiles) {
         for (Profile profile : existingProfiles) {
             if (profile.getProfileName().equals(profileName)) {

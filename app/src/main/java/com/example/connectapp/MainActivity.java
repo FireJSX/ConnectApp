@@ -23,9 +23,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_EDIT_PROFILE = 2;
     private static final String PREFS_NAME = "profiles_prefs";
     private static final String PROFILES_KEY = "profiles_list";
+    private static final String DEFAULT_PROFILE_KEY = "default_profile"; // Key für Standardprofil
 
     private ArrayList<Profile> profileList = new ArrayList<>();
     private ProfileAdapter profileAdapter;
+    private int defaultProfilePosition = -1; // Standardprofil (-1 bedeutet: kein Standardprofil)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,11 +84,23 @@ public class MainActivity extends AppCompatActivity {
                     if (requestCode == REQUEST_CODE_CREATE_PROFILE) {
                         // Neues Profil hinzufügen
                         profileList.add(newProfile);
+
+                        // Prüfen, ob das Profil als Standard markiert ist
+                        boolean isDefault = data.getBooleanExtra("isDefault", false);
+                        if (isDefault) {
+                            setDefaultProfile(profileList.size() - 1); // Setze das neue Profil als Standard
+                        }
                     } else {
                         // Profil bearbeiten
                         int position = data.getIntExtra("profilePosition", -1);
                         if (position != -1) {
                             profileList.set(position, newProfile);
+
+                            // Prüfen, ob es das Standardprofil ist
+                            boolean isDefault = data.getBooleanExtra("isDefault", false);
+                            if (isDefault) {
+                                setDefaultProfile(position);
+                            }
                         }
                     }
                     profileAdapter.notifyDataSetChanged();
@@ -107,9 +121,40 @@ public class MainActivity extends AppCompatActivity {
 
     public void deleteProfile(int position) {
         profileList.remove(position);
+
+        // Wenn das gelöschte Profil das Standardprofil war, Standardprofil zurücksetzen
+        if (position == defaultProfilePosition) {
+            defaultProfilePosition = -1;
+            SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            sharedPreferences.edit().remove(DEFAULT_PROFILE_KEY).apply();
+        } else if (position < defaultProfilePosition) {
+            // Wenn ein Profil vor dem Standardprofil gelöscht wird, Position anpassen
+            defaultProfilePosition--;
+        }
+
         profileAdapter.notifyDataSetChanged();
         saveProfiles();
         Toast.makeText(this, "Profil gelöscht!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void setDefaultProfile(int position) {
+        if (position < 0 || position >= profileList.size()) return;
+
+        // Standardprofil speichern
+        defaultProfilePosition = position;
+
+        // Profil nach oben verschieben
+        Profile defaultProfile = profileList.remove(position);
+        profileList.add(0, defaultProfile);
+
+        // Speichere die Position in SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(DEFAULT_PROFILE_KEY, defaultProfilePosition);
+        editor.apply();
+
+        // Adapter informieren
+        profileAdapter.notifyDataSetChanged();
     }
 
     private void saveProfiles() {
@@ -155,6 +200,14 @@ public class MainActivity extends AppCompatActivity {
                     );
                     profileList.add(profile);
                 }
+
+                // Standardprofil aus SharedPreferences laden
+                defaultProfilePosition = sharedPreferences.getInt(DEFAULT_PROFILE_KEY, -1);
+                if (defaultProfilePosition >= 0 && defaultProfilePosition < profileList.size()) {
+                    Profile defaultProfile = profileList.remove(defaultProfilePosition);
+                    profileList.add(0, defaultProfile);
+                }
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
