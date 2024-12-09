@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Profil nach oben verschieben
         Profile defaultProfile = profileList.remove(position);
+        defaultProfile.setDefaultProfile(true); // Setze das Flag für das Standardprofil
         profileList.add(0, defaultProfile);
 
         // Speichere die Position in SharedPreferences
@@ -171,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
                 jsonObject.put("phone", profile.getPhone());
                 jsonObject.put("email", profile.getEmail());
                 jsonObject.put("address", profile.getAddress());
+                jsonObject.put("isDefaultProfile", profile.isDefaultProfile()); // Speichere den Standardprofil-Status
                 jsonArray.put(jsonObject);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -190,13 +192,16 @@ public class MainActivity extends AppCompatActivity {
                 JSONArray jsonArray = new JSONArray(profilesString);
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    boolean isDefaultProfile = jsonObject.optBoolean("isDefaultProfile", false); // Lese den Standardprofil-Wert
+
                     Profile profile = new Profile(
                             jsonObject.getString("profileName"),
                             jsonObject.getString("name"),
                             jsonObject.getString("lastName"),
                             jsonObject.getString("phone"),
                             jsonObject.getString("email"),
-                            jsonObject.getString("address")
+                            jsonObject.getString("address"),
+                            isDefaultProfile // Übergib den Wert für das Standardprofil
                     );
                     profileList.add(profile);
                 }
@@ -205,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
                 defaultProfilePosition = sharedPreferences.getInt(DEFAULT_PROFILE_KEY, -1);
                 if (defaultProfilePosition >= 0 && defaultProfilePosition < profileList.size()) {
                     Profile defaultProfile = profileList.remove(defaultProfilePosition);
-                    profileList.add(0, defaultProfile);
+                    profileList.add(0, defaultProfile); // Verschiebe das Standardprofil nach oben
                 }
 
             } catch (JSONException e) {

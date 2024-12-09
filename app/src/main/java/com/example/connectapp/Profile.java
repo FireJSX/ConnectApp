@@ -4,39 +4,64 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Profile implements Parcelable {
+
     private String profileName;
     private String name;
     private String lastName;
     private String phone;
     private String email;
     private String address;
+    private boolean isDefaultProfile; // Neues Attribut für Standardprofil
 
-    // Konstruktor
-    public Profile(String profileName, String name, String lastName, String phone, String email, String address) {
+    // Konstruktor mit dem isDefaultProfile-Flag
+    public Profile(String profileName, String name, String lastName, String phone, String email, String address, boolean isDefaultProfile) {
         this.profileName = profileName;
         this.name = name;
         this.lastName = lastName;
         this.phone = phone;
         this.email = email;
         this.address = address;
+        this.isDefaultProfile = isDefaultProfile; // Setze das Standardprofil
     }
 
-    // Getter
-    public String getName() { return name; }
-    public String getPhone() { return phone; }
-    public String getEmail() { return email; }
-    public String getAddress() { return address; }
-    public String getProfileName() { return profileName; }
-    public String getLastName() { return lastName; }
+    // Getter und Setter
+    public boolean isDefaultProfile() {
+        return isDefaultProfile;
+    }
 
-    // Parcelable-Methoden
-    protected Profile(Parcel in) {
-        profileName = in.readString();
-        name = in.readString();
-        lastName = in.readString();
-        phone = in.readString();
-        email = in.readString();
-        address = in.readString();
+    public void setDefaultProfile(boolean isDefaultProfile) {
+        this.isDefaultProfile = isDefaultProfile;
+    }
+
+    // Die restlichen Getter-Methoden
+    public String getProfileName() {
+        return profileName;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    // Parcelable-Methoden für die Übergabe über Intents
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     @Override
@@ -47,11 +72,17 @@ public class Profile implements Parcelable {
         dest.writeString(phone);
         dest.writeString(email);
         dest.writeString(address);
+        dest.writeByte((byte) (isDefaultProfile ? 1 : 0)); // Schreibe das isDefaultProfile-Flag
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    protected Profile(Parcel in) {
+        profileName = in.readString();
+        name = in.readString();
+        lastName = in.readString();
+        phone = in.readString();
+        email = in.readString();
+        address = in.readString();
+        isDefaultProfile = in.readByte() != 0; // Lese das isDefaultProfile-Flag
     }
 
     public static final Creator<Profile> CREATOR = new Creator<Profile>() {
@@ -65,9 +96,4 @@ public class Profile implements Parcelable {
             return new Profile[size];
         }
     };
-
-    @Override
-    public String toString() {
-        return profileName;  // Anpassung für die Listendarstellung
-    }
 }

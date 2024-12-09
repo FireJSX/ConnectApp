@@ -87,7 +87,7 @@ public class CreateProfileActivity extends AppCompatActivity {
         }
 
         // Neues oder bearbeitetes Profil erstellen
-        Profile newProfile = new Profile(profileName, name, lastName, phone, email, address);
+        Profile newProfile = new Profile(profileName, name, lastName, phone, email, address, isDefault);
 
         // Wenn wir ein Profil bearbeiten, die Position übergeben
         Intent resultIntent = new Intent();

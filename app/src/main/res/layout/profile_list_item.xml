@@ -3,16 +3,28 @@
     android:layout_height="wrap_content"
     android:padding="16dp">
 
+    <!-- Icon für Standardprofile -->
+    <ImageView
+        android:id="@+id/icon_star"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_star"
+        android:contentDescription="@string/star_icon"
+        android:visibility="gone" /> <!-- Standardmäßig ausgeblendet -->
+
     <!-- Profilname -->
     <TextView
         android:id="@+id/profile_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/icon_star"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="8dp"
         android:text="Profilname"
         android:textStyle="bold"
         android:textSize="16sp" />
-
-
 
     <!-- Drei Punkte für das Overflow-Menü -->
     <ImageView
@@ -23,5 +35,4 @@
         android:layout_centerVertical="true"
         android:src="@android:drawable/ic_menu_more"
         android:contentDescription="Menü" />
-
 </RelativeLayout>
