@@ -32,12 +32,23 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
         }
 
         Profile profile = getItem(position);
+
+        // Views initialisieren
         TextView nameTextView = convertView.findViewById(R.id.profile_name);
         ImageView menuButton = convertView.findViewById(R.id.profile_menu_button);
+        ImageView starIcon = convertView.findViewById(R.id.icon_star); // Stern-Icon
 
+        // Profilname setzen
         nameTextView.setText(profile.getProfileName());
 
-        // Setze den OnClickListener für das Menü
+        // Stern-Icon sichtbar machen, falls Standardprofil
+        if (profile.isDefaultProfile()) {
+            starIcon.setVisibility(View.VISIBLE);
+        } else {
+            starIcon.setVisibility(View.GONE);
+        }
+
+        // Menü-Button konfigurieren
         menuButton.setOnClickListener(view -> {
             showPopupMenu(view, position);
         });

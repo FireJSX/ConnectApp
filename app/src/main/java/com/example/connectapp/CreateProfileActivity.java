@@ -24,6 +24,7 @@ public class CreateProfileActivity extends AppCompatActivity {
 
     private Profile profileToEdit; // Variable für das zu bearbeitende Profil
     private int profilePosition = -1; // Position des zu bearbeitenden Profils, standardmäßig -1 für "neu"
+    private ArrayList<Profile> existingProfiles; // Vorhandene Profile
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +41,7 @@ public class CreateProfileActivity extends AppCompatActivity {
         defaultProfileCheckBox = findViewById(R.id.checkbox_default_profile); // CheckBox initialisieren
         saveProfileButton = findViewById(R.id.save_profile_button);
 
-        // Überprüfen, ob wir ein Profil zum Bearbeiten haben
+        // Profile aus dem Intent laden
         Intent intent = getIntent();
         if (intent.hasExtra("editProfile")) {
             profileToEdit = intent.getParcelableExtra("editProfile");
@@ -54,8 +55,12 @@ public class CreateProfileActivity extends AppCompatActivity {
                 phoneEditText.setText(profileToEdit.getPhone());
                 emailEditText.setText(profileToEdit.getEmail());
                 addressEditText.setText(profileToEdit.getAddress());
+                defaultProfileCheckBox.setChecked(profileToEdit.isDefaultProfile());
             }
         }
+
+        // Vorhandene Profile laden
+        existingProfiles = intent.getParcelableArrayListExtra("existingProfiles");
 
         // Click-Listener für den "Speichern"-Button
         saveProfileButton.setOnClickListener(v -> saveProfile());
@@ -71,8 +76,7 @@ public class CreateProfileActivity extends AppCompatActivity {
         String address = addressEditText.getText().toString().trim();
         boolean isDefault = defaultProfileCheckBox.isChecked(); // Zustand der CheckBox abfragen
 
-        // Validierung der Eingaben:
-        // Nur Vorname und Telefonnummer sind erforderlich, alle anderen Felder sind optional
+        // Validierung der Eingaben
         if (name.isEmpty()) {
             Toast.makeText(this, "Bitte gib deinen Vornamen ein!", Toast.LENGTH_SHORT).show();
             return;
@@ -81,18 +85,24 @@ public class CreateProfileActivity extends AppCompatActivity {
             Toast.makeText(this, "Bitte gib deine Telefonnummer oder E-Mail-Adresse ein!", Toast.LENGTH_SHORT).show();
             return;
         }
-        // Wenn Profilname nicht angegeben, auf Unbenannt setzen
         if (profileName.isEmpty()) {
             profileName = generateUniqueProfileName("Unbenannt");
+        }
+
+        // Wenn das neue Profil als Standardprofil gesetzt wird, entferne Standardstatus bei anderen
+        if (isDefault) {
+            for (Profile profile : existingProfiles) {
+                profile.setDefaultProfile(false);
+            }
         }
 
         // Neues oder bearbeitetes Profil erstellen
         Profile newProfile = new Profile(profileName, name, lastName, phone, email, address, isDefault);
 
-        // Wenn wir ein Profil bearbeiten, die Position übergeben
+        // Intent für das Ergebnis erstellen
         Intent resultIntent = new Intent();
         resultIntent.putExtra("newProfile", newProfile);
-        resultIntent.putExtra("isDefault", isDefault); // Ist es das Standardprofil?
+        resultIntent.putExtra("isDefault", isDefault);
 
         // Falls es bearbeitet wird, auch die Position weitergeben
         if (profilePosition != -1) {
@@ -105,17 +115,11 @@ public class CreateProfileActivity extends AppCompatActivity {
     }
 
     private String generateUniqueProfileName(String baseName) {
-        Intent intent = getIntent();
-        ArrayList<Profile> existingProfiles = intent.getParcelableArrayListExtra("existingProfiles");
-        if (existingProfiles == null) {
-            return baseName; // Kein Konflikt, Basisname verwenden
-        }
-
         String uniqueName = baseName;
         int counter = 1;
 
         // Überprüfe, ob der Name bereits existiert
-        while (profileExists(uniqueName, existingProfiles)) {
+        while (profileExists(uniqueName)) {
             uniqueName = baseName + " (" + counter + ")";
             counter++;
         }
@@ -123,7 +127,7 @@ public class CreateProfileActivity extends AppCompatActivity {
         return uniqueName;
     }
 
-    private boolean profileExists(String profileName, ArrayList<Profile> existingProfiles) {
+    private boolean profileExists(String profileName) {
         for (Profile profile : existingProfiles) {
             if (profile.getProfileName().equals(profileName)) {
                 return true;

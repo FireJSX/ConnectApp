@@ -3,6 +3,9 @@ package com.example.connectapp;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Profile implements Parcelable {
 
     private String profileName;
@@ -33,7 +36,6 @@ public class Profile implements Parcelable {
         this.isDefaultProfile = isDefaultProfile;
     }
 
-    // Die restlichen Getter-Methoden
     public String getProfileName() {
         return profileName;
     }
@@ -96,4 +98,29 @@ public class Profile implements Parcelable {
             return new Profile[size];
         }
     };
+
+    // Methode toJson(): Konvertiert das Profil in ein JSONObject
+    public JSONObject toJson() throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("profileName", profileName);
+        jsonObject.put("name", name);
+        jsonObject.put("lastName", lastName);
+        jsonObject.put("phone", phone);
+        jsonObject.put("email", email);
+        jsonObject.put("address", address);
+        jsonObject.put("isDefaultProfile", isDefaultProfile);
+        return jsonObject;
+    }
+
+    // Methode fromJson(): Erstellt ein Profil aus einem JSONObject
+    public static Profile fromJson(JSONObject jsonObject) throws JSONException {
+        String profileName = jsonObject.getString("profileName");
+        String name = jsonObject.getString("name");
+        String lastName = jsonObject.getString("lastName");
+        String phone = jsonObject.getString("phone");
+        String email = jsonObject.getString("email");
+        String address = jsonObject.getString("address");
+        boolean isDefaultProfile = jsonObject.optBoolean("isDefaultProfile", false);
+        return new Profile(profileName, name, lastName, phone, email, address, isDefaultProfile);
+    }
 }

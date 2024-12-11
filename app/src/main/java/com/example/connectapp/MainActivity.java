@@ -23,11 +23,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_EDIT_PROFILE = 2;
     private static final String PREFS_NAME = "profiles_prefs";
     private static final String PROFILES_KEY = "profiles_list";
-    private static final String DEFAULT_PROFILE_KEY = "default_profile"; // Key für Standardprofil
+    private static final String DEFAULT_PROFILE_KEY = "default_profile";
 
     private ArrayList<Profile> profileList = new ArrayList<>();
     private ProfileAdapter profileAdapter;
-    private int defaultProfilePosition = -1; // Standardprofil (-1 bedeutet: kein Standardprofil)
+    private int defaultProfilePosition = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,11 +40,11 @@ public class MainActivity extends AppCompatActivity {
         // Lade gespeicherte Profile
         loadProfiles();
 
-        // Verwende den benutzerdefinierten Adapter
+        // Adapter initialisieren
         profileAdapter = new ProfileAdapter(this, profileList);
         profileListView.setAdapter(profileAdapter);
 
-        // Klick auf ein Profil
+        // Profil auswählen
         profileListView.setOnItemClickListener((parent, view, position, id) -> {
             Profile selectedProfile = profileList.get(position);
             openNfcActivity(selectedProfile);
@@ -53,10 +53,7 @@ public class MainActivity extends AppCompatActivity {
         // Neues Profil hinzufügen
         fabAddProfile.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, CreateProfileActivity.class);
-
-            // Bestehende Profile als Liste übergeben
             intent.putParcelableArrayListExtra("existingProfiles", profileList);
-
             startActivityForResult(intent, REQUEST_CODE_CREATE_PROFILE);
         });
     }
@@ -82,25 +79,13 @@ public class MainActivity extends AppCompatActivity {
                 Profile newProfile = data.getParcelableExtra("newProfile");
                 if (newProfile != null) {
                     if (requestCode == REQUEST_CODE_CREATE_PROFILE) {
-                        // Neues Profil hinzufügen
                         profileList.add(newProfile);
-
-                        // Prüfen, ob das Profil als Standard markiert ist
-                        boolean isDefault = data.getBooleanExtra("isDefault", false);
-                        if (isDefault) {
-                            setDefaultProfile(profileList.size() - 1); // Setze das neue Profil als Standard
-                        }
+                        handleDefaultProfileFlag(newProfile, profileList.size() - 1);
                     } else {
-                        // Profil bearbeiten
                         int position = data.getIntExtra("profilePosition", -1);
                         if (position != -1) {
                             profileList.set(position, newProfile);
-
-                            // Prüfen, ob es das Standardprofil ist
-                            boolean isDefault = data.getBooleanExtra("isDefault", false);
-                            if (isDefault) {
-                                setDefaultProfile(position);
-                            }
+                            handleDefaultProfileFlag(newProfile, position);
                         }
                     }
                     profileAdapter.notifyDataSetChanged();
@@ -108,6 +93,15 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Änderungen gespeichert!", Toast.LENGTH_SHORT).show();
                 }
             }
+        }
+    }
+
+    private void handleDefaultProfileFlag(Profile profile, int position) {
+        if (profile.isDefaultProfile()) {
+            setDefaultProfile(position);
+        } else if (defaultProfilePosition == position) {
+            defaultProfilePosition = -1;
+            saveDefaultProfileToPreferences(-1);
         }
     }
 
@@ -121,17 +115,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void deleteProfile(int position) {
         profileList.remove(position);
-
-        // Wenn das gelöschte Profil das Standardprofil war, Standardprofil zurücksetzen
         if (position == defaultProfilePosition) {
             defaultProfilePosition = -1;
-            SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            sharedPreferences.edit().remove(DEFAULT_PROFILE_KEY).apply();
+            saveDefaultProfileToPreferences(-1);
         } else if (position < defaultProfilePosition) {
-            // Wenn ein Profil vor dem Standardprofil gelöscht wird, Position anpassen
             defaultProfilePosition--;
         }
-
         profileAdapter.notifyDataSetChanged();
         saveProfiles();
         Toast.makeText(this, "Profil gelöscht!", Toast.LENGTH_SHORT).show();
@@ -140,45 +129,37 @@ public class MainActivity extends AppCompatActivity {
     private void setDefaultProfile(int position) {
         if (position < 0 || position >= profileList.size()) return;
 
-        // Standardprofil speichern
+        // Deaktiviere das Standardprofil, wenn es existiert
+        if (defaultProfilePosition >= 0 && defaultProfilePosition < profileList.size()) {
+            profileList.get(defaultProfilePosition).setDefaultProfile(false);
+        }
+
+        // Setze das neue Standardprofil
         defaultProfilePosition = position;
+        profileList.get(position).setDefaultProfile(true);
 
-        // Profil nach oben verschieben
-        Profile defaultProfile = profileList.remove(position);
-        defaultProfile.setDefaultProfile(true); // Setze das Flag für das Standardprofil
-        profileList.add(0, defaultProfile);
-
-        // Speichere die Position in SharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(DEFAULT_PROFILE_KEY, defaultProfilePosition);
-        editor.apply();
-
-        // Adapter informieren
+        // Speichern des Standardprofils in SharedPreferences
+        saveDefaultProfileToPreferences(position);
         profileAdapter.notifyDataSetChanged();
+    }
+
+    private void saveDefaultProfileToPreferences(int position) {
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        sharedPreferences.edit().putInt(DEFAULT_PROFILE_KEY, position).apply();
     }
 
     private void saveProfiles() {
         SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-
         JSONArray jsonArray = new JSONArray();
         for (Profile profile : profileList) {
             try {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("profileName", profile.getProfileName());
-                jsonObject.put("name", profile.getName());
-                jsonObject.put("lastName", profile.getLastName());
-                jsonObject.put("phone", profile.getPhone());
-                jsonObject.put("email", profile.getEmail());
-                jsonObject.put("address", profile.getAddress());
-                jsonObject.put("isDefaultProfile", profile.isDefaultProfile()); // Speichere den Standardprofil-Status
+                JSONObject jsonObject = profile.toJson();  // Sicherstellen, dass Profile zu JSON konvertiert werden
                 jsonArray.put(jsonObject);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-
         editor.putString(PROFILES_KEY, jsonArray.toString());
         editor.apply();
     }
@@ -192,25 +173,20 @@ public class MainActivity extends AppCompatActivity {
                 JSONArray jsonArray = new JSONArray(profilesString);
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    boolean isDefaultProfile = jsonObject.optBoolean("isDefaultProfile", false); // Lese den Standardprofil-Wert
-
-                    Profile profile = new Profile(
-                            jsonObject.getString("profileName"),
-                            jsonObject.getString("name"),
-                            jsonObject.getString("lastName"),
-                            jsonObject.getString("phone"),
-                            jsonObject.getString("email"),
-                            jsonObject.getString("address"),
-                            isDefaultProfile // Übergib den Wert für das Standardprofil
-                    );
+                    Profile profile = Profile.fromJson(jsonObject);  // Verwenden der von dir definierten fromJson-Methode
                     profileList.add(profile);
                 }
 
-                // Standardprofil aus SharedPreferences laden
+                // Standardprofil-Position laden
                 defaultProfilePosition = sharedPreferences.getInt(DEFAULT_PROFILE_KEY, -1);
+
+                // Überprüfen, ob das geladene Standardprofil gültig ist
                 if (defaultProfilePosition >= 0 && defaultProfilePosition < profileList.size()) {
                     Profile defaultProfile = profileList.remove(defaultProfilePosition);
-                    profileList.add(0, defaultProfile); // Verschiebe das Standardprofil nach oben
+                    profileList.add(0, defaultProfile);  // Standardprofil an den Anfang verschieben
+                } else {
+                    // Falls die Position ungültig ist, auf -1 setzen
+                    defaultProfilePosition = -1;
                 }
 
             } catch (JSONException e) {
