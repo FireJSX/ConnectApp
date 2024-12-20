@@ -43,20 +43,20 @@ public class CreateProfileActivity extends AppCompatActivity {
 
         // Profile aus dem Intent laden
         Intent intent = getIntent();
-        if (intent.hasExtra("editProfile")) {
-            profileToEdit = intent.getParcelableExtra("editProfile");
-            profilePosition = intent.getIntExtra("profilePosition", -1);
+        if (intent.hasExtra("firstName") && intent.hasExtra("lastName")) {
+            // Wenn Kontaktdaten übergeben wurden, füllen wir die Felder
+            String firstName = intent.getStringExtra("firstName");
+            String lastName = intent.getStringExtra("lastName");
+            String phone = intent.getStringExtra("phone");
+            String email = intent.getStringExtra("email");
+            String address = intent.getStringExtra("address");
 
-            // Felder mit den Daten des zu bearbeitenden Profils füllen
-            if (profileToEdit != null) {
-                profileNameEditText.setText(profileToEdit.getProfileName());
-                nameEditText.setText(profileToEdit.getName());
-                lastNameEditText.setText(profileToEdit.getLastName());
-                phoneEditText.setText(profileToEdit.getPhone());
-                emailEditText.setText(profileToEdit.getEmail());
-                addressEditText.setText(profileToEdit.getAddress());
-                defaultProfileCheckBox.setChecked(profileToEdit.isDefaultProfile());
-            }
+            // Felder mit den Daten des Kontakts füllen
+            nameEditText.setText(firstName);
+            lastNameEditText.setText(lastName);
+            phoneEditText.setText(phone);
+            emailEditText.setText(email);
+            addressEditText.setText(address);
         }
 
         // Vorhandene Profile laden

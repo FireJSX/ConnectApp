@@ -79,4 +79,5 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
 
         popupMenu.show(); // Zeige das Menü an
     }
+
 }
