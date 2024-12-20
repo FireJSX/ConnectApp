@@ -34,12 +34,17 @@ public class NfcActivity extends AppCompatActivity {
         // Überprüfe NFC-Verfügbarkeit
         if (nfcAdapter == null) {
             Toast.makeText(this, "NFC wird auf diesem Gerät nicht unterstützt", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
-        if (!nfcAdapter.isEnabled()) {
-            Toast.makeText(this, "Bitte NFC in den Geräteeinstellungen aktivieren.", Toast.LENGTH_SHORT).show();
+            // NFC nicht verfügbar, zeige trotzdem das Profil und den QR-Code
+            updateNfcStatus("NFC Disabled");
+        } else {
+            if (!nfcAdapter.isEnabled()) {
+                Toast.makeText(this, "Bitte NFC in den Geräteeinstellungen aktivieren.", Toast.LENGTH_SHORT).show();
+                // NFC deaktiviert, aber zeige trotzdem das Profil und den QR-Code
+                updateNfcStatus("NFC Disabled");
+            } else {
+                // NFC aktiviert
+                updateNfcStatus("NFC Enabled");
+            }
         }
 
         // Profildaten aus dem Intent abrufen
@@ -60,7 +65,15 @@ public class NfcActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        enableForegroundDispatch();
+
+        // Überprüfen, ob NFC verfügbar und aktiviert ist
+        if (nfcAdapter != null && nfcAdapter.isEnabled()) {
+            enableForegroundDispatch();
+        } else {
+            // Falls NFC nicht verfügbar oder deaktiviert ist, keine NFC-bezogene Funktion ausführen
+            // Beispiel: Update der Anzeige
+            ((TextView) findViewById(R.id.nfc_status)).setText("NFC is disabled or not supported.");
+        }
     }
 
     @Override
@@ -100,18 +113,23 @@ public class NfcActivity extends AppCompatActivity {
     }
 
     private void enableForegroundDispatch() {
-        Intent intent = new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+        if (nfcAdapter != null) {
+            Intent intent = new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
 
-        IntentFilter[] filters = new IntentFilter[]{
-                new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED),
-                new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
-        };
+            IntentFilter[] filters = new IntentFilter[]{
+                    new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED),
+                    new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
+            };
 
-        String[][] techLists = new String[][]{};
+            String[][] techLists = new String[][]{};
 
-        nfcAdapter.enableForegroundDispatch(this, pendingIntent, filters, techLists);
+            nfcAdapter.enableForegroundDispatch(this, pendingIntent, filters, techLists);
+        } else {
+            // Falls NFC Adapter null ist, setze den Status auf "NFC nicht verfügbar"
+            ((TextView) findViewById(R.id.nfc_status)).setText("NFC is disabled or not supported.");
+        }
     }
 
     private void disableForegroundDispatch() {
@@ -120,8 +138,12 @@ public class NfcActivity extends AppCompatActivity {
         }
     }
 
+    private void updateNfcStatus(String status) {
+        TextView nfcStatusTextView = findViewById(R.id.nfc_status);
+        nfcStatusTextView.setText(status);
+    }
+
     private void displayProfileData(String profileName, String firstName, String lastName, String phone, String email, String address) {
-        ((TextView) findViewById(R.id.nfc_status)).setText("NFC is enabled!");
         ((TextView) findViewById(R.id.profile_name)).setText("Profile Name: " + profileName);
         ((TextView) findViewById(R.id.first_name)).setText("First Name: " + firstName);
         ((TextView) findViewById(R.id.last_name)).setText("Last Name: " + lastName);
@@ -151,7 +173,6 @@ public class NfcActivity extends AppCompatActivity {
             Log.e(TAG, "QR-Code-Generierung fehlgeschlagen", e);
         }
     }
-
 
     private String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
