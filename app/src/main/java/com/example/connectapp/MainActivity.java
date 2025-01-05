@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -25,8 +26,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,12 +48,12 @@ public class MainActivity extends AppCompatActivity {
         ListView profileListView = findViewById(R.id.profile_list_view);
         FloatingActionButton fabAddProfile = findViewById(R.id.fab_add_profile);
 
-        // Lade gespeicherte Profile
-        loadProfiles();
-
         // Adapter initialisieren
         profileAdapter = new ProfileAdapter(this, profileList);
         profileListView.setAdapter(profileAdapter);
+
+        loadProfiles();
+
 
         // Profil auswählen
         profileListView.setOnItemClickListener((parent, view, position, id) -> {
@@ -110,9 +109,14 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("profile_last_name", profile.getLastName());
         intent.putExtra("profile_phone", profile.getPhone());
         intent.putExtra("profile_email", profile.getEmail());
-        intent.putExtra("profile_address", profile.getAddress());
+        intent.putExtra("profile_street", profile.getStreet());
+        intent.putExtra("profile_house_number", profile.getHouseNumber());
+        intent.putExtra("profile_postal_code", profile.getPostalCode());
+        intent.putExtra("profile_city", profile.getCity());
+        intent.putExtra("profile_country", profile.getCountry());
         startActivity(intent);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -147,7 +151,11 @@ public class MainActivity extends AppCompatActivity {
                 String contactName = null;
                 String contactPhone = null;
                 String contactEmail = null;
-                String contactAddress = null;
+                String contactStreet = null;
+                String contactPostalCode = null;
+                String contactCity = null;
+                String contactCountry = null;
+                String contactHouseNumber = null;
 
                 // Abrufen der Kontaktinformationen
                 Cursor cursor = getContentResolver().query(contactUri, null, null, null, null);
@@ -210,17 +218,22 @@ public class MainActivity extends AppCompatActivity {
                             if (addressCursor != null) {
                                 try {
                                     if (addressCursor.moveToFirst()) {
-                                        int addressIndex = addressCursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS);
-                                        contactAddress = addressCursor.getString(addressIndex);
+                                        int streetIndex = addressCursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.STREET);
+                                        int postalCodeIndex = addressCursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.POSTCODE);
+                                        int cityIndex = addressCursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.CITY);
+                                        int countryIndex = addressCursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.COUNTRY);
+
+                                        contactStreet = addressCursor.getString(streetIndex);
+                                        contactHouseNumber = extractHouseNumber(contactStreet); // Hausnummer extrahieren
+                                        contactStreet = removeHouseNumber(contactStreet); // Hausnummer aus Straße entfernen
+                                        contactPostalCode = addressCursor.getString(postalCodeIndex);
+                                        contactCity = addressCursor.getString(cityIndex);
+                                        contactCountry = addressCursor.getString(countryIndex);
                                     }
                                 } finally {
                                     addressCursor.close();
                                 }
                             }
-
-                            // Adresse parsen
-                            AddressDetails addressDetails = parseAddress(contactAddress);
-
                         }
                     } finally {
                         cursor.close();
@@ -236,22 +249,66 @@ public class MainActivity extends AppCompatActivity {
                         intent.putExtra("lastName", lastName);
                         intent.putExtra("phone", contactPhone);
                         intent.putExtra("email", contactEmail);
-                        intent.putExtra("address", contactAddress);
+                        intent.putExtra("street", contactStreet);
+                        intent.putExtra("houseNumber", contactHouseNumber);
+                        intent.putExtra("postalCode", contactPostalCode);
+                        intent.putExtra("city", contactCity);
+                        intent.putExtra("country", contactCountry);
                         startActivityForResult(intent, REQUEST_CODE_CREATE_PROFILE);
                     }
                 }
             }
         }
     }
+    private String extractHouseNumber(String street) {
+        if (street != null && street.matches(".*\\s\\d+[a-zA-Z]?$")) {
+            return street.substring(street.lastIndexOf(" ") + 1);
+        }
+        return "";
+    }
+
+    private String removeHouseNumber(String street) {
+        if (street != null && street.matches(".*\\s\\d+[a-zA-Z]?$")) {
+            return street.substring(0, street.lastIndexOf(" "));
+        }
+        return street;
+    }
 
     private void handleDefaultProfileFlag(Profile profile, int position) {
+        // Wenn das Profil als Standard markiert wird
         if (profile.isDefaultProfile()) {
-            setDefaultProfile(position);
+            // Nur das neue Standardprofil setzen, wenn es nicht bereits das Standardprofil ist
+            if (defaultProfilePosition != position) {
+                // Wenn bereits ein Standardprofil vorhanden ist, setzen wir es zurück
+                if (defaultProfilePosition != -1) {
+                    Profile oldDefaultProfile = profileList.get(defaultProfilePosition);
+                    oldDefaultProfile.setDefaultProfile(false); // Das alte Standardprofil zurücksetzen
+                }
+
+                // Das neue Profil als Standardprofil setzen
+                setDefaultProfile(position);
+
+                // Das neue Standardprofil an den Anfang der Liste verschieben
+                moveProfileToTop(position);
+            }
         } else if (defaultProfilePosition == position) {
+            // Wenn das Standardprofil nicht mehr als Standard markiert werden soll
             defaultProfilePosition = -1;
             saveDefaultProfileToPreferences(-1);
         }
     }
+
+
+    private void moveProfileToTop(int position) {
+        // Profil an den Anfang der Liste verschieben
+        Profile profile = profileList.get(position);
+        profileList.remove(position);
+        profileList.add(0, profile); // Profil an den Anfang der Liste setzen
+
+        // Wenn das Standardprofil verschoben wird, muss der Adapter neu geladen werden
+        profileAdapter.notifyDataSetChanged();
+    }
+
 
     private void setDefaultProfile(int position) {
         if (position < 0 || position >= profileList.size()) return;
@@ -273,48 +330,89 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveProfiles() {
-        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        JSONArray jsonArray = new JSONArray();
-        for (Profile profile : profileList) {
-            try {
-                JSONObject jsonObject = profile.toJson();
-                jsonArray.put(jsonObject);
-            } catch (JSONException e) {
-                e.printStackTrace();
+
+        try {
+            // JSON-Array zum Speichern der Profile
+            JSONArray jsonArray = new JSONArray();
+            String defaultProfileName = ""; // Variable für den Namen des Standardprofils
+
+            // Füge jedes Profil der JSON-Liste hinzu
+            for (Profile profile : profileList) {
+                JSONObject profileJson = profile.toJson(); // Konvertiere das Profile zu JSON
+                jsonArray.put(profileJson);
+
+                // Wenn es das Standardprofil ist, speichern wir den Namen separat
+                if (profile.isDefaultProfile()) {
+                    defaultProfileName = profile.getProfileName(); // Speichern des Namens des Standardprofils
+                }
             }
+
+            // Speichere die Liste der Profile und den Namen des Standardprofils
+            editor.putString(PROFILES_KEY, jsonArray.toString());
+            editor.putString(DEFAULT_PROFILE_KEY, defaultProfileName); // Speichern des Standardprofilnamens
+
+            // Anwenden der Änderungen
+            editor.apply();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-        editor.putString(PROFILES_KEY, jsonArray.toString());
-        editor.apply();
     }
+
+
 
     private void loadProfiles() {
         SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        Log.d("SharedPreferences", "Stored data: " + sharedPreferences.getAll().toString());
+
+        // Hole den gespeicherten String mit den Profilen
         String profilesString = sharedPreferences.getString(PROFILES_KEY, null);
 
+        // Hole den Namen des Standardprofils (anstatt der Position)
+        String defaultProfileName = sharedPreferences.getString(DEFAULT_PROFILE_KEY, null);
+
+        // Wenn Profile vorhanden sind
         if (profilesString != null) {
             try {
+                // Profile als JSONArray parsen
                 JSONArray jsonArray = new JSONArray(profilesString);
+                profileList.clear(); // Lösche die aktuelle Liste, bevor neue Profile hinzugefügt werden
+
+                // Füge die Profile zur Liste hinzu
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    Profile profile = Profile.fromJson(jsonObject);
-                    profileList.add(profile);
+                    Profile profile = Profile.fromJson(jsonObject); // Konvertiere das JSONObject zu einem Profile
+                    profileList.add(profile); // Füge das Profile der Liste hinzu
                 }
 
-                defaultProfilePosition = sharedPreferences.getInt(DEFAULT_PROFILE_KEY, -1);
-
-                if (defaultProfilePosition >= 0 && defaultProfilePosition < profileList.size()) {
-                    Profile defaultProfile = profileList.remove(defaultProfilePosition);
-                    profileList.add(0, defaultProfile);
-                } else {
-                    defaultProfilePosition = -1;
+                // Wenn ein Standardprofil vorhanden ist
+                if (defaultProfileName != null) {
+                    // Suche das Standardprofil anhand des Namens
+                    for (int i = 0; i < profileList.size(); i++) {
+                        Profile profile = profileList.get(i);
+                        if (profile.getProfileName().equals(defaultProfileName)) {
+                            // Das Standardprofil an den Anfang verschieben
+                            Profile defaultProfile = profileList.remove(i);
+                            profileList.add(0, defaultProfile); // Füge es an den Anfang der Liste
+                            break; // Profil gefunden, Schleife verlassen
+                        }
+                    }
                 }
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        } else {
+            // Wenn keine Profile vorhanden sind, setze das Standardprofil auf null
+            defaultProfileName = null;
         }
+
+        // Aktualisiere die Adapter-Daten
+        profileAdapter.notifyDataSetChanged();
     }
+
+
 
     public void editProfile(int position) {
         // Profil aus der Liste holen
@@ -334,59 +432,6 @@ public class MainActivity extends AppCompatActivity {
             profileAdapter.notifyDataSetChanged(); // Adapter benachrichtigen, damit die Ansicht aktualisiert wird
             saveProfiles(); // Profile in den SharedPreferences speichern
             Toast.makeText(this, "Profil gelöscht", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private AddressDetails parseAddress(String fullAddress) {
-        // Fallback, falls die Adresse leer ist
-        if (fullAddress == null || fullAddress.isEmpty()) {
-            return new AddressDetails("", "", "", "");
-        }
-
-        // Regular Expression zur Trennung von Straße, Hausnummer, PLZ und Ort
-        String addressRegex = "(.+?)\\s(\\d+[a-zA-Z]*)[,\\s]+([0-9]{4,5})\\s(.+)";
-        Pattern pattern = Pattern.compile(addressRegex);
-        Matcher matcher = pattern.matcher(fullAddress);
-
-        if (matcher.matches()) {
-            String street = matcher.group(1).trim();
-            String houseNumber = matcher.group(2).trim();
-            String postalCode = matcher.group(3).trim();
-            String city = matcher.group(4).trim();
-            return new AddressDetails(street, houseNumber, postalCode, city);
-        } else {
-            // Falls das Muster nicht passt, gesamte Adresse in das Stadtfeld schreiben
-            return new AddressDetails(fullAddress, "", "", "");
-        }
-    }
-
-    private static class AddressDetails {
-        private final String street;
-        private final String houseNumber;
-        private final String postalCode;
-        private final String city;
-
-        public AddressDetails(String street, String houseNumber, String postalCode, String city) {
-            this.street = street;
-            this.houseNumber = houseNumber;
-            this.postalCode = postalCode;
-            this.city = city;
-        }
-
-        public String getStreet() {
-            return street;
-        }
-
-        public String getHouseNumber() {
-            return houseNumber;
-        }
-
-        public String getPostalCode() {
-            return postalCode;
-        }
-
-        public String getCity() {
-            return city;
         }
     }
 

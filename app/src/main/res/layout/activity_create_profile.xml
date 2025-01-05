@@ -41,8 +41,6 @@
             android:hint="Telefonnummer"
             android:inputType="phone" />
 
-
-
         <!-- Eingabefeld für E-Mail-Adresse -->
         <EditText
             android:id="@+id/input_email"
@@ -51,13 +49,67 @@
             android:hint="E-Mail"
             android:inputType="textEmailAddress" />
 
-        <!-- Eingabefeld für die Adresse -->
-        <EditText
-            android:id="@+id/input_address"
+        <!-- Abschnitt für Adresse -->
+        <TextView
+            android:id="@+id/address_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+ Adresse"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="16sp"
+            android:paddingTop="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Eingabefelder für Adresse (initial unsichtbar) -->
+        <LinearLayout
+            android:id="@+id/address_layout"
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Adresse"
-            android:inputType="textPostalAddress" />
+            android:visibility="gone">
+
+            <!-- Eingabefeld für die Hausnummer -->
+            <EditText
+                android:id="@+id/input_street"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Straße"
+                android:inputType="text"/>
+
+            <!-- Eingabefeld für die Hausnummer -->
+            <EditText
+                android:id="@+id/input_house_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Hausnummer"
+                android:inputType="number"/>
+
+            <!-- Eingabefeld für die Postleitzahl -->
+            <EditText
+                android:id="@+id/input_postal_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Postleitzahl"
+                android:inputType="number"/>
+
+            <!-- Eingabefeld für den Ort -->
+            <EditText
+                android:id="@+id/input_city"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Ort"
+                android:inputType="text"/>
+
+            <!-- Eingabefeld für das Land -->
+            <EditText
+                android:id="@+id/input_country"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Land"
+                android:inputType="text"/>
+        </LinearLayout>
 
         <!-- Checkbox für Standard-Profil -->
         <CheckBox

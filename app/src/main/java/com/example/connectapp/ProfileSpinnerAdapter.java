@@ -46,7 +46,7 @@ public class ProfileSpinnerAdapter extends ArrayAdapter<Profile> {
         profileNameTextView.setText(profile.getProfileName());
 
         // Zeige den Stern nur, wenn das Profil das Standardprofil ist
-        if (profile.getProfileName().equals(defaultProfileName)) {
+        if (profile.isDefaultProfile()) {
             starIcon.setVisibility(View.VISIBLE);
         } else {
             starIcon.setVisibility(View.GONE);
@@ -60,5 +60,17 @@ public class ProfileSpinnerAdapter extends ArrayAdapter<Profile> {
         }
 
         return convertView;
+    }
+    public boolean profileExists(String profileName) {
+        if (profiles == null) {
+            return false;
+        }
+
+        for (Profile profile : profiles) {
+            if (profile.getProfileName().equals(profileName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
