@@ -58,6 +58,21 @@ public class CreateProfileActivity extends AppCompatActivity {
             emailEditText.setText(email);
             addressEditText.setText(address);
         }
+        if (intent.hasExtra("editProfile")) {
+            profileToEdit = intent.getParcelableExtra("editProfile");
+            profilePosition = intent.getIntExtra("profilePosition", -1);
+
+            if (profileToEdit != null) {
+                // Felder mit den Daten des zu bearbeitenden Profils füllen
+                profileNameEditText.setText(profileToEdit.getProfileName());
+                nameEditText.setText(profileToEdit.getName());
+                lastNameEditText.setText(profileToEdit.getLastName());
+                phoneEditText.setText(profileToEdit.getPhone());
+                emailEditText.setText(profileToEdit.getEmail());
+                addressEditText.setText(profileToEdit.getAddress());
+                defaultProfileCheckBox.setChecked(profileToEdit.isDefaultProfile());
+            }
+        }
 
         // Vorhandene Profile laden
         existingProfiles = intent.getParcelableArrayListExtra("existingProfiles");

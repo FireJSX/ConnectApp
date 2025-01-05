@@ -25,6 +25,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -215,6 +217,10 @@ public class MainActivity extends AppCompatActivity {
                                     addressCursor.close();
                                 }
                             }
+
+                            // Adresse parsen
+                            AddressDetails addressDetails = parseAddress(contactAddress);
+
                         }
                     } finally {
                         cursor.close();
@@ -330,4 +336,58 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Profil gelöscht", Toast.LENGTH_SHORT).show();
         }
     }
+
+    private AddressDetails parseAddress(String fullAddress) {
+        // Fallback, falls die Adresse leer ist
+        if (fullAddress == null || fullAddress.isEmpty()) {
+            return new AddressDetails("", "", "", "");
+        }
+
+        // Regular Expression zur Trennung von Straße, Hausnummer, PLZ und Ort
+        String addressRegex = "(.+?)\\s(\\d+[a-zA-Z]*)[,\\s]+([0-9]{4,5})\\s(.+)";
+        Pattern pattern = Pattern.compile(addressRegex);
+        Matcher matcher = pattern.matcher(fullAddress);
+
+        if (matcher.matches()) {
+            String street = matcher.group(1).trim();
+            String houseNumber = matcher.group(2).trim();
+            String postalCode = matcher.group(3).trim();
+            String city = matcher.group(4).trim();
+            return new AddressDetails(street, houseNumber, postalCode, city);
+        } else {
+            // Falls das Muster nicht passt, gesamte Adresse in das Stadtfeld schreiben
+            return new AddressDetails(fullAddress, "", "", "");
+        }
+    }
+
+    private static class AddressDetails {
+        private final String street;
+        private final String houseNumber;
+        private final String postalCode;
+        private final String city;
+
+        public AddressDetails(String street, String houseNumber, String postalCode, String city) {
+            this.street = street;
+            this.houseNumber = houseNumber;
+            this.postalCode = postalCode;
+            this.city = city;
+        }
+
+        public String getStreet() {
+            return street;
+        }
+
+        public String getHouseNumber() {
+            return houseNumber;
+        }
+
+        public String getPostalCode() {
+            return postalCode;
+        }
+
+        public String getCity() {
+            return city;
+        }
+    }
+
 }
