@@ -224,11 +224,28 @@ public class CreateProfileActivity extends AppCompatActivity {
     }
 
 
-    private String generateUniqueProfileName(String profileName) {
-        // Hier kannst du eine Methode einbauen, um einen einzigartigen Profilnamen zu generieren,
-        // falls der Name bereits existiert.
-        return profileName;
+    public String generateUniqueProfileName(String baseName) {
+        String uniqueName = baseName;
+        int counter = 1;
+
+        // Solange der Name schon existiert, füge eine Zahl hinzu
+        while (profileExists(uniqueName)) {
+            uniqueName = baseName + " (" + counter + ")";
+            counter++;
+        }
+
+        return uniqueName;
     }
+
+    private boolean profileExists(String name) {
+        for (Profile profile : existingProfiles) {
+            if (profile.getProfileName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private String getDefaultProfileName() {
         for (Profile profile : existingProfiles) {

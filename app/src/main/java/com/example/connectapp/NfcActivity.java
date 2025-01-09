@@ -1,17 +1,18 @@
 package com.example.connectapp;
 
-import android.app.PendingIntent;
-import android.content.Intent;
-import android.content.IntentFilter;
+
 import android.graphics.Bitmap;
-import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+//import android.widget.Toast;
+//import android.app.PendingIntent;
+//import android.content.Intent;
+//import android.content.IntentFilter;
+//import android.nfc.Tag;
+//import android.nfc.NdefMessage;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -68,7 +69,7 @@ public class NfcActivity extends AppCompatActivity {
         displayProfileData(profileName, firstName, lastName, phone, email, street, houseNumber, postalCode, city, country);
 
         // QR-Code generieren
-        generateQRCode(profileName, firstName, lastName, phone, email, street, houseNumber, postalCode, city, country);
+        generateQRCode(firstName, lastName, phone, email, street, houseNumber, postalCode, city, country);
     }
 
      private void displayProfileData(String profileName, String firstName, String lastName, String phone, String email, String street, String houseNumber, String postalCode, String city, String country) {
@@ -82,7 +83,7 @@ public class NfcActivity extends AppCompatActivity {
                 (postalCode != null && !postalCode.equals("N/A") ? " " + postalCode : "") + " " +(city != null && !city.equals("N/A") ? " " + city : "")+ ", " + (country != null && !country.equals("N/A") ? " " + country : ""));
     }
 
-    private void generateQRCode(String profileName, String firstName, String lastName, String phone, String email, String street, String houseNumber, String postalCode, String city, String country) {
+    private void generateQRCode(String firstName, String lastName, String phone, String email, String street, String houseNumber, String postalCode, String city, String country) {
         // vCard-Daten für den QR-Code
         String vCardData = "BEGIN:VCARD\n" +
                 "VERSION:3.0\n" +
