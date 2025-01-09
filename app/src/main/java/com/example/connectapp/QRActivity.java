@@ -19,7 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
-public class NfcActivity extends AppCompatActivity {
+public class QRActivity extends AppCompatActivity {
 
     private static final String TAG = "NfcActivity";
     private NfcAdapter nfcAdapter;
@@ -27,7 +27,7 @@ public class NfcActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_nfc);
+        setContentView(R.layout.activity_qr);
 
         // NFC-Adapter initialisieren
         //  nfcAdapter = NfcAdapter.getDefaultAdapter(this);
@@ -73,14 +73,14 @@ public class NfcActivity extends AppCompatActivity {
     }
 
      private void displayProfileData(String profileName, String firstName, String lastName, String phone, String email, String street, String houseNumber, String postalCode, String city, String country) {
-        ((TextView) findViewById(R.id.profile_name)).setText("Profile Name: " + profileName);
-        ((TextView) findViewById(R.id.first_name)).setText("First Name: " + firstName);
-        ((TextView) findViewById(R.id.last_name)).setText("Last Name: " + lastName);
-        ((TextView) findViewById(R.id.phone)).setText("Phone: " + phone);
+        ((TextView) findViewById(R.id.profile_name)).setText("Profil: " + profileName);
+        ((TextView) findViewById(R.id.first_name)).setText("Vorname: " + firstName);
+        ((TextView) findViewById(R.id.last_name)).setText("Nachname: " + lastName);
+        ((TextView) findViewById(R.id.phone)).setText("Telefon: " + phone);
         ((TextView) findViewById(R.id.email)).setText("Email: " + email);
-        ((TextView) findViewById(R.id.address)).setText("Address: " + (street != null && !street.equals("N/A") ? " " + street : "") +
-                (houseNumber != null && !houseNumber.equals("N/A") ? " " + houseNumber : "") + ", " +
-                (postalCode != null && !postalCode.equals("N/A") ? " " + postalCode : "") + " " +(city != null && !city.equals("N/A") ? " " + city : "")+ ", " + (country != null && !country.equals("N/A") ? " " + country : ""));
+        ((TextView) findViewById(R.id.address)).setText("Adresse: " + (street != null && !street.equals("N/A") ? " " + street : "")  +
+                (houseNumber != null && !houseNumber.equals("N/A") ? " " + houseNumber : "") + "\n                 " +
+                (postalCode != null && !postalCode.equals("N/A") ? " " + postalCode : "") + " " +(city != null && !city.equals("N/A") ? " " + city : "")+ "\n                 " + (country != null && !country.equals("N/A") ? " " + country : ""));
     }
 
     private void generateQRCode(String firstName, String lastName, String phone, String email, String street, String houseNumber, String postalCode, String city, String country) {

@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openNfcActivity(Profile profile) {
-        Intent intent = new Intent(MainActivity.this, NfcActivity.class);
+        Intent intent = new Intent(MainActivity.this, QRActivity.class);
         intent.putExtra("profile_name", profile.getProfileName());
         intent.putExtra("profile_first_name", profile.getName());
         intent.putExtra("profile_last_name", profile.getLastName());

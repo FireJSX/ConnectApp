@@ -37,7 +37,7 @@
             android:exported="true" />
 
         <!-- NfcActivity -->
-        <activity android:name=".NfcActivity"
+        <activity android:name=".QRActivity"
             android:exported="true" />
 
     </application>
