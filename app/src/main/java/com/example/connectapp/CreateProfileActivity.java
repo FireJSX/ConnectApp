@@ -36,7 +36,7 @@ public class CreateProfileActivity extends AppCompatActivity {
     private Profile profileToEdit; // Variable für das zu bearbeitende Profil
     private int profilePosition = -1; // Position des zu bearbeitenden Profils, standardmäßig -1 für "neu"
     private ArrayList<Profile> existingProfiles; // Vorhandene Profile
-    private ProfileSpinnerAdapter profileSpinnerAdapter;  // Adapter für den Spinner
+    //private ProfileSpinnerAdapter profileSpinnerAdapter;  // Adapter für den Spinner
     private Spinner profileSpinner;  // Spinner für Profile
 
     @Override
