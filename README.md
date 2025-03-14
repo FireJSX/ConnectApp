@@ -11,14 +11,12 @@ ConnectApp is an Android application that simplifies contact sharing using QR co
 - 📸 **QR Code Generation**: Instantly generate QR codes for easy profile sharing.
 - 📡 **Scan & Connect**: Scan QR codes to seamlessly save contacts.
 - ⭐ **Set Default Profile**: Mark a default profile for quick sharing.
-- 🔍 **Search & Filter**: Find your contacts with ease.
 - 🎨 **Sleek UI/UX**: Modern and intuitive Material Design for a smooth experience.
 
 ## 🏗️ Tech Stack
 - **📱 Android SDK** - Native Android app development
 - **💻 Java** - Core programming language
 - ☕ **Android Studio** - Primary IDE for development
-- 📲 **Firebase** - Cloud storage & real-time database
 
 ## 📌 Installation
 1. Clone the repository:  
