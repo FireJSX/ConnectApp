@@ -60,7 +60,7 @@ ConnectApp/
 ## 🚀 How It Works
 1️⃣ **Create a Profile** – Enter your contactdata you want to share or import it from your contacts.  
 2️⃣ **Generate a QR Code** – Instantly create a QR code to share your profile.  
-3️⃣ **Scan & Connect** – Scan other users' QR codes in your camera app to save their details without installing other applications.  
+3️⃣ **Scan & Connect** – Scan other users' QR codes and simply press add.
 
 ## 💡 Future Features
 ✅ Dark mode support 🌙  
